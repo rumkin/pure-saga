@@ -1,7 +1,7 @@
 var
 tmp
 example
-src
+
 
 .dockerignore
 .editorconfig

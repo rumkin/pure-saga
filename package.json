@@ -17,7 +17,7 @@
     "should": "^11.2.1",
     "webpack": "^2.5.1"
   },
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Functional implementation of redux-saga alike asynchronous flow manager",
   "directories": {
     "test": "test"
