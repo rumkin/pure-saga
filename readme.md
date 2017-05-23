@@ -23,31 +23,42 @@ Define effects:
 const dataStore = new Map();
 
 const effects = {
-    func({fn, args}) {
+    call({fn, args}) {
         return fn(...args);
     },
-    store({key, value}) {
+    put({key, value}) {
         dataStore.set(key, value);
     },
+    get({key}) {
+        return dataStore.get(key);
+    }
 };
 
 // Define effect factory
 const effect = {
-    func(fn, ...args) {
+    call(fn, ...args) {
         return {
-            type: 'func',
+            type: 'call',
             payload: {
                 fn,
                 args,
             },
         };
     },
-    store(key, value) {
+    put(key, value) {
         return {
-            type: 'store',
-            paylaod: {
+            type: 'put',
+            payload: {
                 key,
                 value,
+            },
+        }
+    },
+    get(key) {
+        return {
+            type: 'get',
+            payload: {
+                key,
             },
         }
     },
@@ -57,11 +68,11 @@ const effect = {
 Define generator:
 ```javascript
 function loadUserSaga(userId) {
-    // Retrieve user with api call
-    const user = yield effect.func(api.loadUser, userId);
+    // Retrieve user calling api.loadUser method
+    const user = yield effect.call(api.loadUser, userId);
     
     // Put data to store
-    yield effect.store('user', user);
+    yield effect.put('user', user);
     
     return user;
 }
@@ -102,12 +113,43 @@ saga it could be checked with checking effect value:
 
 ```javascript
 {
-    type: 'store',
+    type: 'put',
     payload: {
         key: 'user',
         value: {},
     },
 }
+```
+
+Test example.
+
+```javascript
+function * getUserSaga() {
+    const user = yield effect.get('user');
+    
+    return user;
+}
+
+describe('getUserSaga', () => {
+    it('Should yield `get` effect', () => {
+        const it = getUserSaga();
+        
+        const effect = it.next().value;
+        
+        // Check effect to be an instanceof get effect.
+        should(effect).be.deepEqual({
+            type: 'get',
+            payload: {
+                key: 'user',
+            },
+        });
+        
+        const user = {name: 'user'};
+        const result = it.next(user).value;
+        
+        should(result).be.deepEqual(user);
+    });
+});
 ```
 
 # License
