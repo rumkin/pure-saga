@@ -67,7 +67,7 @@ const effect = {
 
 Define generator:
 ```javascript
-function loadUserSaga(userId) {
+function * loadUserSaga(userId) {
     // Retrieve user calling api.loadUser method
     const user = yield effect.call(api.loadUser, userId);
     
