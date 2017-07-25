@@ -21,8 +21,15 @@ describe('createSaga', function() {
             },
         };
 
-        let saga = createSaga(function *() {
-            let result = yield {type: 'call', payload: {fn() { return 1 }}};
+        const saga = createSaga(function *() {
+            const result = yield {
+                type: 'call',
+                payload: {
+                    fn() {
+                        return 1;
+                    },
+                },
+            };
 
             return result + 1;
         }, effects);
@@ -38,8 +45,15 @@ describe('createSaga', function() {
 
         effects.set('call', ({fn, args = []}) => fn(...args));
 
-        let saga = createSaga(function *() {
-            let result = yield {type: 'call', payload: {fn() { return 1 }}};
+        const saga = createSaga(function *() {
+            const result = yield {
+                type: 'call',
+                payload: {
+                    fn() {
+                        return 1;
+                    },
+                },
+            };
 
             return result + 1;
         }, effects);
