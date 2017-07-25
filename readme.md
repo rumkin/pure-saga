@@ -35,7 +35,7 @@ const effects = {
 };
 
 // Define effect factory
-const effect = {
+const effectHandlers = {
     call(fn, ...args) {
         return {
             type: 'call',
@@ -70,17 +70,17 @@ Define generator:
 function * loadUserSaga(userId) {
     // Retrieve user calling api.loadUser method
     const user = yield effect.call(api.loadUser, userId);
-    
+
     // Put data to store
     yield effect.put('user', user);
-    
+
     return user;
 }
 ```
 
 Create saga method:
 ```javascript
-const loadUser = createSaga(loadUserSaga, effects);
+const loadUser = createSaga(loadUserSaga, effectHandlers);
 ```
 
 Usage:
@@ -101,7 +101,7 @@ function loadUser(userId) {
     return api.loadUser(userId)
     .then((user) => {
         dataStore.set(userId, user);
-        
+
         return user;
     });
 }
@@ -126,16 +126,16 @@ Test example.
 ```javascript
 function * getUserSaga() {
     const user = yield effect.get('user');
-    
+
     return user;
 }
 
 describe('getUserSaga', () => {
     it('Should yield `get` effect', () => {
         const it = getUserSaga();
-        
+
         const effect = it.next().value;
-        
+
         // Check effect to be an instanceof get effect.
         should(effect).be.deepEqual({
             type: 'get',
@@ -143,10 +143,10 @@ describe('getUserSaga', () => {
                 key: 'user',
             },
         });
-        
+
         const user = {name: 'user'};
         const result = it.next(user).value;
-        
+
         should(result).be.deepEqual(user);
     });
 });
