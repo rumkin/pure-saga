@@ -34,7 +34,7 @@ This example shows how to create API for saga like this:
 const effectHandlers = {
     api: ({method, args}) => api[method](...args),
     storePut: ({id, item}) => store.set(id, item),
-    storePut: ({id, item}) => store.get(id),
+    storeGet: ({id, item}) => store.get(id),
 };
 
 // Example saga generator function
