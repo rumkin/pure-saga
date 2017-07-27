@@ -1,5 +1,7 @@
 {
   "name": "pure-saga",
+  "version": "3.5.3",
+  "description": "Functional implementation of redux-saga alike asynchronous flow manager",
   "main": "src/index.js",
   "scripts": {
     "build": "npm run build:dev && npm run build:prod",
@@ -17,8 +19,6 @@
     "should": "^11.2.1",
     "webpack": "^2.5.1"
   },
-  "version": "3.5.2",
-  "description": "Functional implementation of redux-saga alike asynchronous flow manager",
   "directories": {
     "test": "test"
   },
