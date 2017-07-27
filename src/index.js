@@ -20,7 +20,7 @@ function createSaga(generator, effects_) {
         effects = new Map(effects_.entries());
     }
     else {
-        effects = new Map(Object.entries(effects_));
+        effects = new Map(entries(effects_));
     }
 
     return (...args) => {
@@ -127,7 +127,7 @@ function runIterator(it, effects) {
                 return;
             }
 
-            let { type, payload } = value;
+            let {type, payload} = value;
 
             if (effects.has(type)) {
                 let result;
@@ -155,7 +155,7 @@ function runIterator(it, effects) {
                 tick();
                 return;
             }
-        }
+        };
 
         tick();
     });
@@ -185,4 +185,13 @@ function isIterable(value) {
     }
 
     return (typeof value.next === 'function');
+}
+
+function entries(value) {
+    return Object.getOwnPropertyNames(value)
+    .reduce(function(result, prop) {
+        return result.concat([
+            [prop, value[prop]]
+        ]);
+    }, []);
 }
