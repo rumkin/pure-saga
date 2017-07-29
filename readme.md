@@ -15,6 +15,7 @@ npm i pure-saga
 Or via unpkg.com:
 
 ```html
+<script src="https://unpkg.com/pure-saga@3/dist/pure-saga.js"></script>
 <script src="https://unpkg.com/pure-saga@3/dist/pure-saga.min.js"></script>
 ```
 
