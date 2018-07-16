@@ -5,13 +5,12 @@ module.exports = createSagas;
  */
 const GeneratorFunction = (function*(){}).constructor;
 
-
 /**
  * Create promised function from generator with effects yielding.
  *
  * @param {function*} generator Generator function which yielding effects.
- * @param {object, Map<string,function>} effects_ Dictionary of effects handlers.
- * @return function<Promise<*,Error>> Asynchronous generator wrapper into Promise.
+ * @param {object|Map<string,function>} effects_ Dictionary of effects handlers.
+ * @return {function<Promise>} Asynchronous generator wrapper into Promise.
  */
 function createSaga(generator, effects_) {
     let effects;
@@ -62,7 +61,7 @@ function createSagas(sagas, effects) {
  * Run saga generator with arguments for specific set of effects.
  *
  * @param {GeneratorFunction} generator Saga generator.
- * @param {Object} effects Collection of saga effects.
+ * @param {Object} effects Collection of saga effect handlers.
  * @param {...*} [...args] List of arguments which should be passed into generator
  * @returns {Promise<*,Error>} Return promise resolved with generator result.
  */
@@ -79,10 +78,11 @@ function runSaga(generator, effects, ...args) {
 }
 
 /**
- * Iterate over generator iterator of saga generator using specified set of effects.
+ * runIterator iterates over generator iterator of saga generator using
+ * specified set of effect handlers.
  *
  * @param {Iterator} it Saga generator's iterator.
- * @param {Object} effects Collection of saga effects.
+ * @param {Object} effects Collection of saga effects handlers.
  * @return {Promise<*,Error>} Return promise resolved with iterator result.
  */
 function runIterator(it, effects) {
@@ -96,13 +96,42 @@ function runIterator(it, effects) {
             return;
         }
 
-        const tick = (result) => {
+        function onError(err) {
+            reject(err);
+            tick();
+        }
+
+        function handleEffect(type, payload) {
+            if (! effects.has(type)) {
+                onError(new Error('Unknown effect type "' + type + '".'));
+                return;
+            }
+
+            let result;
+            try {
+                result = effects.get(type)(payload || {});
+            }
+            catch (err) {
+                onError(err);
+                return;
+            }
+
+            if (isThenable(result)) {
+                result.then(tick, onError);
+            }
+            else {
+                tick(result);
+            }
+        }
+
+        function tick(result) {
             let value, done;
             try {
-                let res = it.next(result);
+                const res = it.next(result);
                 value = res.value;
                 done = res.done;
-            } catch (err) {
+            }
+            catch (err) {
                 reject(err);
                 return;
             }
@@ -114,47 +143,16 @@ function runIterator(it, effects) {
 
             if (isIterable(value)) {
                 runIterator(value, effects)
-                .then(tick, (err) => {
-                    it.throw(err);
-                    tick();
-                });
+                .then(tick, onError);
                 return;
             }
 
-            if (typeof value !== 'object' || value === null) {
-                it.throw(new Error('Invalid effect'));
-                tick();
+            if (! isObject(value)) {
+                onError(new Error('Invalid effect'));
                 return;
             }
 
-            let {type, payload} = value;
-
-            if (effects.has(type)) {
-                let result;
-                try {
-                    result = effects.get(type)(payload || {});
-                }
-                catch (err) {
-                    it.throw(err);
-                    tick();
-                    return;
-                }
-
-                if (isThenable(result)) {
-                    result.then(tick, (err) => {
-                        it.throw(err);
-                        tick();
-                    });
-                }
-                else {
-                    tick(result);
-                }
-            }
-            else {
-                it.throw(new Error('Unknown effect type "' + type + '".'));
-                tick();
-                return;
-            }
+            handleEffect(value.type, value.payload);
         };
 
         tick();
@@ -191,7 +189,7 @@ function entries(value) {
     return Object.getOwnPropertyNames(value)
     .reduce(function(result, prop) {
         return result.concat([
-            [prop, value[prop]]
+            [prop, value[prop]],
         ]);
     }, []);
 }
