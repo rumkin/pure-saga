@@ -1,6 +1,6 @@
 {
   "name": "pure-saga",
-  "version": "3.5.9",
+  "version": "3.5.10",
   "description": "Functional implementation of redux-saga alike asynchronous flow manager",
   "main": "src/index.js",
   "engines": {
@@ -19,7 +19,7 @@
     "babel-loader": "^7.0.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
-    "mocha": "^3.4.1",
+    "mocha": "^5.2.0",
     "should": "^11.2.1",
     "webpack": "^2.5.1"
   },
